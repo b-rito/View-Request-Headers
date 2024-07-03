@@ -7,7 +7,7 @@ View Request Headers is a repository that contains scripts to install a web serv
 
 ## Setup and Usage
 
-There are two methods that can be referenced for using these scripts. One method is for an already deployed VM that you have access to setup a web service and PHP. The other method is through an Azure template to deploy a VM with a custom script extension.
+There are two methods that can be referenced for using this nginx script. One method is for an already deployed VM that you have access to setup Nginx and PHP. The other method is through an Azure template to deploy a VM with a custom script extension.
 
 ### Setup on pre-existing machine
 
