@@ -56,7 +56,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email"
 
 # Hit 'enter' for default location
 # Use passphrase if preferred
-# User type to get your Public Key
+# Use type to get your Public Key
 # Copy into template
 type .\.ssh\id_rsa.pub
 ```
