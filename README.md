@@ -14,7 +14,7 @@ There are two methods that can be referenced for using these scripts. One method
 Ubuntu with Nginx:
 
 ```bash
-sudo /usr/bin/env bash -c "$(curl -fsSL https://gist.githubusercontent.com/b-rito/b09da196a3f0c9b510fc85eb115ab064/raw/32e8d0ad5adbf049e90a2ad92cf922588369aaa6/nginx.sh)"
+sudo /usr/bin/env bash -c "$(curl -fsSL https://gist.githubusercontent.com/b-rito/b09da196a3f0c9b510fc85eb115ab064/raw/fba95ccdd004fb6d878ec140cc67a6a8d31909cd/nginx.sh)"
 ```
 
 ### Virtual Machine Deployment via Azure Template

@@ -18,8 +18,18 @@ Azure Regions Other: UAE North, South Africa North, Central India, Southeast Asi
     "location": {
       "type": "string",
       "allowedValues": [
-        "East US", "East US 2", "South Central US", "West US 3", "France Central", "UK South", "Sweden Central",
-        "Poland Central", "UAE North", "South Africa North", "Central India", "Southeast Asia"
+        "East US",
+        "East US 2",
+        "South Central US",
+        "West US 3",
+        "France Central",
+        "UK South",
+        "Sweden Central",
+        "Poland Central",
+        "UAE North",
+        "South Africa North",
+        "Central India",
+        "Southeast Asia"
       ],
       "metadata": {
         "description": "Location for all resources."
@@ -295,7 +305,7 @@ Azure Regions Other: UAE North, South Africa North, Central India, Southeast Asi
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://gist.githubusercontent.com/b-rito/b09da196a3f0c9b510fc85eb115ab064/raw/32e8d0ad5adbf049e90a2ad92cf922588369aaa6/nginx.sh"
+            "https://gist.githubusercontent.com/b-rito/b09da196a3f0c9b510fc85eb115ab064/raw/fba95ccdd004fb6d878ec140cc67a6a8d31909cd/nginx.sh"
           ]
         },
         "protectedSettings": {

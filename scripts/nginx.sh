@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TEMP_DIR=`mktemp -d DELETEME.XXX`
+TEMP_DIR=$(mktemp -d DELETEME.XXX)
 
 move_files () {
   ARR=('index.html' 'index.php' 'styles.css' 'curl.php' 'html.php')
@@ -9,7 +9,7 @@ move_files () {
   done
 
   PHP_VERSION=$(find /run/php/ -name "php[0-9]*.sock")
-  sed -i -e "s#/run/php/php8\.1-fpm\.sock#$PHP_VERSION#g" configs/default
+  sed -i -e "s#/run/php/php8\.1-fpm\.sock#$PHP_VERSION#g" $TEMP_DIR/configs/default
 
   cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
   cp $TEMP_DIR/configs/default /etc/nginx/sites-available/default
