@@ -49,33 +49,33 @@ printf("\033[0;90m+ %s + %s +\033[0;0m\n", makeHyphens($column1), makeHyphens($c
 
 // Date time
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;32m %-*s \033[0;0m", $column1, "Date");
+printf("\033[0;32m %-{$column1}s \033[0;0m", "Date");
 printf("\033[0;90m=\033[0;0m");
-printf("\033[0;93m %-*s \033[0;0m", $column2, date(DATE_RFC2822));
+printf("\033[0;93m %-{$column2}s \033[0;0m",  date(DATE_RFC2822));
 printf("\033[0;90m|\033[0;0m");
 printf("\n");
 
 // Hostname information
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;32m %-*s \033[0;0m", $column1, "Hostname");
+printf("\033[0;32m %-{$column1}s \033[0;0m", "Hostname");
 printf("\033[0;90m=\033[0;0m");
-printf("\033[0;93m %-*s \033[0;0m", $column2, gethostname());
+printf("\033[0;93m %-{$column2}s \033[0;0m", gethostname());
 printf("\033[0;90m|\033[0;0m");
 printf("\n");
 
 // Request Method information
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;32m %-*s \033[0;0m", $column1, "Request Method");
+printf("\033[0;32m %-{$column1}s \033[0;0m", "Request Method");
 printf("\033[0;90m=\033[0;0m");
-printf("\033[0;93m %-*s \033[0;0m", $column2, $_SERVER['REQUEST_METHOD']);
+printf("\033[0;93m %-{$column2}s \033[0;0m", $_SERVER['REQUEST_METHOD']);
 printf("\033[0;90m|\033[0;0m");
 printf("\n");
 
 // Request URI information
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;32m %-*s \033[0;0m", $column1, "Request URI");
+printf("\033[0;32m %-{$column1}s \033[0;0m", "Request URI");
 printf("\033[0;90m=\033[0;0m");
-printf("\033[0;93m %-*s \033[0;0m", $column2, $_SERVER['REQUEST_URI']);
+printf("\033[0;93m %-{$column2}s \033[0;0m", $_SERVER['REQUEST_URI']);
 printf("\033[0;90m|\033[0;0m");
 printf("\n");
 
@@ -89,9 +89,9 @@ printf("\033[0;90m+ %s + %s +\033[0;0m\n", makeHyphens($maxHeader), makeHyphens(
 
 // Title
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;0m %-*s \033[0;0m", $maxHeader, "Request Headers");
+printf("\033[0;0m %-{$maxHeader}s \033[0;0m", "Request Headers");
 printf("\033[0;90m|\033[0;0m");
-printf("\033[0;0m %-*s \033[0;0m", $maxValue, "Request Values");
+printf("\033[0;0m %-{$maxValue}s \033[0;0m", "Request Values");
 printf("\033[0;90m|\033[0;0m");
 printf("\n");
 
@@ -100,8 +100,8 @@ printf("\033[0;90m+ %s + %s +\033[0;0m\n", makeHyphens($maxHeader), makeHyphens(
 
 // Output all Request Header-Values received
 foreach ($requestHeaders as $Header => $Value) {
-    printf("\033[0;90m\033[0;32m %-*s  ", $maxHeader, $Header);
-    printf("\033[0;90m:\033[0;93m %-*s ", $maxValue, $Value);
+    printf("\033[0;90m\033[0;32m %-{$maxHeader}s  ", $Header);
+    printf("\033[0;90m:\033[0;93m %-{$maxValue}s ", $Value);
     printf("\033[0;90m\n");
 }
 
@@ -119,15 +119,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $postData = file_get_contents('php://input');
             printf("\033[0;90m+ %s +\033[0;0m\n", makeHyphens($maxPost));
             printf("\033[0;90m|\033[0;0m");
-            printf("\033[0;0m %-*s \033[0;0m", $maxPost, "POST Form");
+            printf("\033[0;0m %-{$maxPost}s \033[0;0m", "POST Form");
             printf("\033[0;90m|\033[0;0m\n");
             printf("\033[0;90m+ %s +\033[0;0m\n", makeHyphens($maxPost));
-            printf("\033[0;0m  %-*s \033[0;0m\n", $maxPost, $postData);
+            printf("\033[0;0m  %-{$maxPost}s \033[0;0m\n", $postData);
             printf("\033[0;90m+ %s +\033[0;0m\n", makeHyphens($maxPost));
     } else {
         printf("\033[0;90m+ %s +\033[0;0m\n", makeHyphens($maxPost));
         printf("\033[0;90m|\033[0;0m");
-        printf("\033[0;0m %-*s \033[0;0m", $maxPost, "POST Form");
+        printf("\033[0;0m %-{$maxPost}s \033[0;0m", "POST Form");
         printf("\033[0;90m|\033[0;0m\n");
         printf("\033[0;90m+ %s +\033[0;0m\n", makeHyphens($maxPost));
         print_r( $_POST);

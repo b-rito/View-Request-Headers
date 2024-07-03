@@ -55,7 +55,7 @@ if ($maxHeader < strlen("Request Headers")) {
 function makeHyphens($length) {
     return str_repeat('-', $length);
 }
-  
+
 //////////////////////////////////////////////////////////
 // Hostname
 // Outline
@@ -63,31 +63,31 @@ printf("%s+ %s + %s +%s\n", $gray, makeHyphens($column1), makeHyphens($column2),
 
 // Date time
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $green, $column1, "Date", $close);
+printf("%s %-{$column1}s %s", $green, "Date", $close);
 printf("%s=%s", $gray, $close);
-printf("%s %-*s %s", $yellow, $column2, date(DATE_RFC2822), $close);
+printf("%s %-{$column2}s %s", $yellow, date(DATE_RFC2822), $close);
 printf("%s|%s\n", $gray, $close);
 
 // Hostname information
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $green, $column1, "Hostname", $close);
+printf("%s %-{$column1}s %s", $green, "Hostname", $close);
 printf("%s=%s", $gray, $close);
-printf("%s %-*s %s", $yellow, $column2, gethostname(), $close);
+printf("%s %-{$column2}s %s", $yellow, gethostname(), $close);
 printf("%s|%s\n", $gray, $close);
 
 // Request Method information
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $green, $column1, "Request Method", $close);
+printf("%s %-{$column1}s %s", $green, "Request Method", $close);
 printf("%s=%s", $gray, $close);
-printf("%s %-*s %s", $yellow, $column2, $_SERVER['REQUEST_METHOD'], $close);
+printf("%s %-{$column2}s %s", $yellow, $_SERVER['REQUEST_METHOD'], $close);
 printf("%s|%s\n", $gray, $close);
 
 // Request URI information
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $green, $column1, "Request URI", $close);
+printf("%s %-{$column1}s %s", $green, "Request URI", $close);
 printf("%s=%s", $gray, $close);
-printf("%s %-*s %s", $yellow, $column2, $_SERVER['REQUEST_URI'], $close);
-printf("%s|%s\n", $gray, $close);printf("%s|%s\n", $gray, $close);
+printf("%s %-{$column2}s %s", $yellow, $_SERVER['REQUEST_URI'], $close);
+printf("%s|%s\n", $gray, $close);
 
 // Outline
 printf("%s+ %s + %s +%s\n", $gray, makeHyphens($column1), makeHyphens($column2), $close);
@@ -99,18 +99,18 @@ printf("%s+ %s + %s +%s\n", $gray, makeHyphens($maxHeader), makeHyphens($maxValu
 
 // Title
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $white, $maxHeader, "Request Headers", $close);
+printf("%s %-{$maxHeader}s %s", $white, "Request Headers", $close);
 printf("%s|%s", $gray, $close);
-printf("%s %-*s %s", $white, $maxValue, "Request Values", $close);
+printf("%s %-{$maxValue}s %s", $white, "Request Values", $close);
 printf("%s|%s\n", $gray, $close);
 
 // Outline
 printf("%s+ %s + %s +%s\n", $gray, makeHyphens($maxHeader), makeHyphens($maxValue), $close);
 // Request Headers
 foreach ($requestHeaders as $Header => $Value) {
-    printf("%s %-*s %s", $green, $maxHeader, $Header, $close);
+    printf("%s %-{$maxHeader}s %s", $green, $Header, $close);
     printf("%s : %s", $gray, $close);
-    printf("%s %-*s %s\n", $yellow, $maxValue, $Value, $close);
+    printf("%s %-{$maxValue}s %s\n", $yellow, $Value, $close);
 }
 
 // Outline
@@ -127,26 +127,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     if (empty($_POST)) {
         $postData = file_get_contents('php://input');
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
-            printf("%s|%s", $gray, $close);            
-            printf("%s %-*s %s", $white, $maxPost, "POST Form", $close);
+            printf("%s|%s", $gray, $close);
+            printf("%s %-{$maxPost}s %s\n", $white, "POST Form", $close);
             printf("%s|%s\n", $gray, $close);
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
             printf("%s %-*s %s\n", $yellow, $maxPost, $postData, $close);
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
     } else {
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
-            printf("%s|%s", $gray, $close); 
-            printf("%s %-*s %s", $white, $maxPost, "POST Form", $close);
+            printf("%s|%s", $gray, $close);
+            printf("%s %-{$maxPost}s %s\n", $white, "POST Form", $close);
             printf("%s|%s\n", $gray, $close);
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
             print_r( $_POST);
             printf("%s+ %s +%s\n", $gray, makeHyphens($maxPost), $close);
     }
 }
-
 ?>
-
-
         </code>
       </pre>
     </div>
