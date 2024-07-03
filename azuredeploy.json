@@ -9,12 +9,6 @@
     }
   },
   "parameters": {
-    /* Location received from RG / New RG deployment 
-    Azure Regions America: East US, East US 2, South Central US, West US 3  
-Azure Regions Europe: France Central, UK South, Sweden Central, Poland Central  
-Azure Regions Other: UAE North, South Africa North, Central India, Southeast Asia
-    
-    */
     "location": {
       "type": "string",
       "allowedValues": [
