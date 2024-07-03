@@ -1,0 +1,308 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.6.18.56646",
+      "templateHash": "10806234693722113459"
+    }
+  },
+  "parameters": {
+    /* Location received from RG / New RG deployment 
+    Azure Regions America: East US, East US 2, South Central US, West US 3  
+Azure Regions Europe: France Central, UK South, Sweden Central, Poland Central  
+Azure Regions Other: UAE North, South Africa North, Central India, Southeast Asia
+    
+    */
+    "location": {
+      "type": "string",
+      "allowedValues": [
+        "East US", "East US 2", "South Central US", "West US 3", "France Central", "UK South", "Sweden Central",
+        "Poland Central", "UAE North", "South Africa North", "Central India", "Southeast Asia"
+      ],
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {
+        "project": "vrh"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Username to be used as admin/root on the Virtual Machine"
+      }
+    },
+    /* Virtual Network params */
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Address prefix for VNET (i.e. 10.0.0.0/24)"
+      }
+    },
+    "sourceAddressPrefixOrServiceTag": {
+      "type": "string",
+      "defaultValue": "255.255.255.255",
+      "metadata": {
+        "description": "Accept a standard Service Tag or IP Address like '10.10.10.10'"
+      }
+    },
+    "sshPublicKeyData": {
+      "type": "string",
+      /*"ssh-rsa AAAAB....== username@usernames-pc"*/
+      "defaultValue": "ssh-rsa AAAA...== username@contoso",
+      "metadata": {
+        "description": "Ensure you have a public/private key pair locally, if not use `ssh-keygen -t rsa -b 4096 -C \"your_email@example.com\"` to generate one. Copy your Public SSH Key (ex: .ssh/id_rsa.pub) here to create a new SSH Key resource (ssh-key-vrh)."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "subnetPrefix",
+        "count": 4,
+        "input": "[cidrSubnet(concat(parameters('vnetAddressPrefix'), '/24'), 26, range(0, length(variables('subnetNames')))[copyIndex('subnetPrefix')])]"
+      }
+    ],
+    "subnetNames": ["servers-sn", "tbd-sn", "tbd1-sn", "tbd2-sn"],
+    "nsgNames": ["servers-nsg", "tbd-nsg", "tbd1-nsg", "tbd2-nsg"],
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnetName'))]",
+    "serverSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('subnetNames')[0])]",
+    "sshPublicKeyName": "ssh-key-vrh",
+    "virtualMachineName": "ubuntu22-vrh",
+    "vnetName": "vnet-vrh"
+  },
+  "resources": [
+    /* Virtual Network Resources */
+    {
+      "name": "[variables('vnetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-04-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgNames')[0])]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgNames')[1])]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgNames')[2])]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgNames')[3])]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": ["[parameters('vnetAddressPrefix')]"]
+        },
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(variables('subnetNames'))]",
+            "input": {
+              "name": "[variables('subnetNames')[copyIndex('subnets')]]",
+              "properties": {
+                "addressPrefix": "[variables('subnetPrefix')[copyIndex('subnets')]]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgNames')[copyIndex('subnets')])]"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "nsgCopy",
+        "count": "[length(variables('nsgNames'))]"
+      },
+      "name": "[variables('nsgNames')[copyIndex()]]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-04-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "securityRules": [
+          {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('nsgNames')[copyIndex()], 'AllowServiceTagInbound')]",
+            "name": "AllowServiceTagInbound",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "access": "Allow",
+              "protocol": "*",
+              "direction": "Inbound",
+              "priority": 100,
+              "sourceAddressPrefix": "[parameters('sourceAddressPrefixOrServiceTag')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefixes": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "sourcePortRanges": []
+            }
+          }
+        ]
+      }
+    },
+    /* Create SSH Key Resource for VM */
+    {
+      "name": "ssh-key-vrh",
+      "type": "Microsoft.Compute/sshPublicKeys",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "apiVersion": "2023-03-01",
+      "properties": {
+        "publicKey": "[parameters('sshPublicKeyData')]"
+      }
+    },
+    /* Virtual Machine resources */
+    {
+      "name": "[concat(variables('virtualMachineName'), '-pip')]",
+      "type": "Microsoft.Network/publicIpAddresses",
+      "apiVersion": "2023-04-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "publicIpAllocationMethod": "Static"
+      },
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      }
+    },
+    {
+      "name": "[concat(variables('virtualMachineName'), '-nic')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-04-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIpAddresses/', variables('virtualMachineName'), '-pip')]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+        "[concat('Microsoft.Compute/sshPublicKeys/', variables('sshPublicKeyName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('serverSubnetID')]"
+              },
+              "publicIpAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIpAddresses', concat(variables('virtualMachineName'), '-pip'))]",
+                "properties": {
+                  "deleteOption": "Delete"
+                }
+              }
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      }
+    },
+    {
+      "name": "[variables('virtualMachineName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-03-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('virtualMachineName'), '-nic')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_D2s_v3"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-jammy",
+            "sku": "22_04-lts-gen2",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            },
+            "deleteOption": "Delete"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('virtualMachineName'), '-nic'))]",
+              "properties": {
+                "deleteOption": "Delete"
+              }
+            }
+          ]
+        },
+        "additionalCapabilities": {
+          "hibernationEnabled": false
+        },
+        "osProfile": {
+          "computerName": "[variables('virtualMachineName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys',  parameters('adminUsername'))]",
+                  "keyData": "[parameters('sshPublicKeyData')]"
+                }
+              ]
+            },
+            "patchSettings": {
+              "patchMode": "AutomaticByPlatform",
+              "automaticByPlatformSettings": {
+                "rebootSetting": "IfRequired"
+              }
+            }
+          }
+        },
+        "securityProfile": {
+          "securityType": "TrustedLaunch",
+          "uefiSettings": {
+            "secureBootEnabled": true,
+            "vTpmEnabled": true
+          }
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "[format('{0}/{1}', variables('virtualMachineName'), 'installubuntunginx')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
+      "apiVersion": "2023-03-01",
+      "dependsOn": ["[variables('virtualMachineName')]"],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "https://gist.githubusercontent.com/b-rito/b09da196a3f0c9b510fc85eb115ab064/raw/32e8d0ad5adbf049e90a2ad92cf922588369aaa6/nginx.sh"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "./nginx.sh"
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
